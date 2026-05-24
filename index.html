@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TravelNest - Explore destinations, plan trips, and manage your travel wishlist." />
+  <title>TravelNest - Home</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+
+  <div id="nav-slot"></div>
+
+  <!-- Hero section -->
+  <section class="hero">
+    <div class="hero-grid">
+
+      <!-- Left: Auto-rotating quote (no background image) -->
+      <div class="hero-quote-side">
+        <div class="hero-quote-inner">
+          <div class="quote-mark">"</div>
+          <p class="quote-text" id="quoteText">The world is a book, and those who do not travel read only one page.</p>
+          <div class="quote-divider"></div>
+          <p class="quote-author">— <span id="quoteAuthor">Saint Augustine</span></p>
+          <div class="quote-dots" id="quoteDots"></div>
+        </div>
+      </div>
+
+      <!-- Right: Rotating full-height image with dissolve fade -->
+      <div class="hero-image-side">
+        <!-- Two image layers for crossfade dissolve -->
+        <div class="hero-img-layer" id="heroImgA"></div>
+        <div class="hero-img-layer hero-img-layer--top" id="heroImgB"></div>
+        <!-- Dissolve gradient mask on the left edge -->
+        <div class="hero-img-dissolve"></div>
+        <!-- City name overlay -->
+        <div class="hero-img-label" id="heroImgLabel"></div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- Destination of the Day -->
+  <section class="section section-tight">
+    <div class="container">
+      <div class="reveal">
+        <p class="accent-label">Updated Daily</p>
+        <h2 class="section-subtitle">Destination of the Day</h2>
+        <!-- Card filled by JS -->
+        <div class="dotd-card" id="dotdCard"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Featured destinations -->
+  <section class="section section-white">
+    <div class="container">
+      <div class="reveal">
+        <h2 class="section-heading">Featured Destinations</h2>
+      </div>
+      <!-- Grid filled by JS -->
+      <div class="cards-grid" id="featuredGrid"></div>
+      <div class="reveal centered">
+        <a href="destinations.html" class="btn btn-green btn-small">See All Destinations</a>
+      </div>
+    </div>
+  </section>
+
+
+  <div id="footer-slot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    initPage('home');
+    var currentQuote = 0;
+
+    var dotsContainer = document.getElementById('quoteDots');
+    travelQuotes.forEach(function (q, i) {
+      var dot = document.createElement('button');
+      dot.className = 'quote-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Quote ' + (i + 1));
+      dot.addEventListener('click', function () { showQuote(i); });
+      dotsContainer.appendChild(dot);
+    });
+    function showQuote(index) {
+      currentQuote = index;
+      var textEl = document.getElementById('quoteText');
+      var authorEl = document.getElementById('quoteAuthor');
+      textEl.style.opacity = '0';
+      authorEl.style.opacity = '0';
+      setTimeout(function () {
+        textEl.textContent = travelQuotes[index].text;
+        authorEl.textContent = travelQuotes[index].author;
+        textEl.style.opacity = '1';
+        authorEl.style.opacity = '1';
+        // also show the hero image that corresponds to this quote
+        if (typeof showHeroImage === 'function') showHeroImage(index);
+      }, 380);
+      document.querySelectorAll('.quote-dot').forEach(function (dot, i) {
+        dot.classList.toggle('active', i === index);
+      });
+    }
+    setInterval(function () {
+      showQuote((currentQuote + 1) % travelQuotes.length);
+    }, 5000);
+    showQuote(0);
+
+    var heroImages = destinations.map(function(d){ return { src: d.image, name: d.name }; });
+    var layerA = document.getElementById('heroImgA');
+    var layerB = document.getElementById('heroImgB');
+    var labelEl = document.getElementById('heroImgLabel');
+    var topIsB = true;
+    function setLayer(el, src) { el.style.backgroundImage = "url('" + src + "')"; }
+    function showHeroImage(index) {
+      var dest = heroImages[index % heroImages.length];
+      if (topIsB) {
+        setLayer(layerA, dest.src);
+        layerA.style.opacity = '1';
+        layerB.style.opacity = '0';
+      } else {
+        setLayer(layerB, dest.src);
+        layerB.style.opacity = '1';
+        layerA.style.opacity = '0';
+      }
+      topIsB = !topIsB;
+      labelEl.style.opacity = '0';
+      setTimeout(function(){ labelEl.textContent = dest.name; labelEl.style.opacity = '1'; }, 400);
+    }
+    // initial hero setup (keeps two images ready for crossfade)
+    setLayer(layerA, heroImages[0].src);
+    setLayer(layerB, heroImages[1 % heroImages.length].src);
+    layerA.style.opacity = '1';
+    layerB.style.opacity = '0';
+    labelEl.textContent = heroImages[0].name;
+    labelEl.style.opacity = '1';
+    // Note: image rotation is driven by the quote rotation via showQuote -> showHeroImage
+
+     // choose today's destination
+    var today     = new Date();
+    var dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+    var dotd      = destinations[dayOfYear % destinations.length];
+
+    document.getElementById('dotdCard').innerHTML = `
+      <img src="${dotd.image || 'images/placeholder.svg'}" alt="${dotd.name}" class="card-image" />
+      <div class="dotd-body">
+        <p class="dotd-label">✈ Destination of the Day</p>
+        <p class="dotd-name">${dotd.name}, ${dotd.country}</p>
+        <p class="dotd-desc">${dotd.desc.substring(0, 110)}...</p>
+        <a href="destinations.html" class="btn btn-green btn-small dotd-cta">
+          Explore ${dotd.name} →
+        </a>
+      </div>`;
+
+
+     // featured cards
+    var grid = document.getElementById('featuredGrid');
+    destinations.slice(0, 6).forEach(function (dest) {
+      var card = document.createElement('div');
+      card.className = 'card reveal';
+      card.innerHTML = `
+        <img src="${dest.image || 'images/placeholder.svg'}" alt="${dest.name}" class="card-image" />
+        <div class="card-body">
+          <p class="card-title">${dest.name}</p>
+          <p class="card-country">${dest.country} &bull; ${dest.continent}</p>
+          <p class="card-desc">${dest.desc.substring(0, 80)}...</p>
+        </div>`;
+
+      // go to explore page
+      card.addEventListener('click', function () {
+        window.location.href = 'destinations.html';
+      });
+
+      grid.appendChild(card);
+    });
+
+    // reveal new cards
+    initScrollReveal();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+.budget-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.panel {
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.panel h3 {
+  font-size: 1.15rem;
+  color: var(--dark);
+  margin-bottom: 20px;
+}
+
+.result-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.total-amount {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 10px 0;
+}
+
+.budget-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.badge-low      { background-color: #d4edda; color: #1a6b3c; }
+.badge-moderate { background-color: #fff3cd; color: #856404; }
+.badge-luxury   { background-color: #f8d7da; color: #721c24; }
+
+.result-detail {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 6px;
+}
+
+.result-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.progress-info {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 14px;
+}
+
+.progress-note {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.button-row {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.save-message {
+  font-size: 0.8rem;
+  color: var(--primary);
+  margin-top: 8px;
+}
+
+.saved-section {
+  margin-top: 30px;
+}
+
+.saved-section h4 {
+  font-size: 1rem;
+  color: var(--dark);
+  margin-bottom: 14px;
+}
+
+.saved-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: var(--grey-bg);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.saved-name {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.saved-cost {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #e53935;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .budget-layout { grid-template-columns: 1fr; }
+}

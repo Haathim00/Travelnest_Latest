@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Contact TravelNest support, send feedback, and browse frequently asked questions." />
+  <title>TravelNest - Feedback & Support</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/feedback.css" />
+</head>
+<body>
+
+  <div id="nav-slot"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>💬 Feedback & Support</h1>
+      <p>We read every message and aim to reply within 24 hours</p>
+    </div>
+  </div>
+
+  <section class="section section-tight">
+    <div class="container">
+      <div class="feedback-layout">
+
+        <!-- =====================
+             CONTACT FORM
+             ===================== -->
+        <div class="panel reveal">
+          <h3>Send Us a Message</h3>
+          <p class="panel-sub">Have a question, suggestion, or found a bug? Let us know!</p>
+
+          <!-- Name field -->
+          <div class="form-group">
+            <label for="fbName">Full Name</label>
+            <input type="text" id="fbName" placeholder="Your full name" autocomplete="name" />
+            <p class="error-msg" id="errName">Please enter your name.</p>
+          </div>
+
+          <!-- Email field -->
+          <div class="form-group">
+            <label for="fbEmail">Email Address</label>
+            <input type="email" id="fbEmail" placeholder="your@email.com" autocomplete="email" />
+            <p class="error-msg" id="errEmail">Please enter a valid email address.</p>
+          </div>
+
+          <!-- Message field -->
+          <div class="form-group">
+            <label for="fbMessage">Message</label>
+            <textarea id="fbMessage" rows="5" placeholder="Write your message here..."></textarea>
+            <p class="error-msg" id="errMsg">Please enter a message (at least 10 characters).</p>
+          </div>
+
+          <!-- Submit button -->
+          <button class="btn btn-green btn-block" onclick="submitFeedback()">
+            Send Message
+          </button>
+
+          <!-- Success banner (hidden until form submitted) -->
+          <div class="success-banner" id="successBanner">
+            🎉 Thank you! Your message has been received.
+          </div>
+        </div>
+
+        <!-- =====================
+             FAQ
+             ===================== -->
+        <div class="reveal">
+          <h3 class="faq-heading">Frequently Asked Questions</h3>
+          <p class="faq-description">Quick answers to common questions</p>
+
+          <!-- FAQ items built by JS below -->
+          <div id="faqContainer"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-slot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    initPage('feedback');
+    var faqData = [
+      {
+        q: "Is TravelNest free to use?",
+        a: "Yes! TravelNest is completely free. All features — exploring destinations, planning budgets, generating trips — are available at no cost."
+      },
+      {
+        q: "How does the Destination of the Day work?",
+        a: "The page selects a featured destination based on the current date so the featured item changes over time."
+      },
+      {
+        q: "Can I save my trips and budgets?",
+        a: "Yes. Your saved trips, wishlist, and destination tracking are all stored in your browser using localStorage, so they stay saved across visits."
+      },
+      {
+        q: "How accurate are the travel cost estimates?",
+        a: "The cost estimates are rough guides to help you plan. Actual prices vary by season, availability, and personal choices. Always check current prices before booking."
+      },
+      {
+        q: "How does the Random Trip Generator work?",
+        a: "It filters our destination data based on your chosen travel type and budget, then randomly selects one destination from the matching results."
+      },
+      {
+        q: "How do the ambient sounds work?",
+        a: "The sounds are generated directly in your browser using the Web Audio API. No audio files are downloaded — it all runs in JavaScript."
+      },
+      {
+        q: "How do I report a bug?",
+        a: "Use the contact form on this page! Describe what happened and we will look into it as soon as possible."
+      }
+    ];
+
+
+    // add FAQ items
+    var container = document.getElementById('faqContainer');
+
+    faqData.forEach(function (item, index) {
+      var div = document.createElement('div');
+      div.className = 'faq-item';
+      div.id = 'faq-' + index;
+
+      div.innerHTML = `
+        <div class="faq-question" onclick="toggleFaq(${index})">
+          <span>${item.q}</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>${item.a}</p>
+        </div>`;
+
+      container.appendChild(div);
+    });
+
+    // toggle FAQ item
+    function toggleFaq(index) {
+      var item   = document.getElementById('faq-' + index);
+      var isOpen = item.classList.contains('open');
+
+      // close all items
+      document.querySelectorAll('.faq-item').forEach(function (el) {
+        el.classList.remove('open');
+      });
+
+      // open selected item
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    }
+
+
+    // feedback form validation
+    function submitFeedback() {
+      var name    = document.getElementById('fbName').value.trim();
+      var email   = document.getElementById('fbEmail').value.trim();
+      var message = document.getElementById('fbMessage').value.trim();
+
+      var isValid = true;
+
+      // check name
+      if (name.length < 2) {
+        document.getElementById('fbName').classList.add('invalid');
+        isValid = false;
+      } else {
+        document.getElementById('fbName').classList.remove('invalid');
+      }
+
+      // check email
+      var emailOk = email.includes('@') && email.includes('.');
+      if (!emailOk) {
+        document.getElementById('fbEmail').classList.add('invalid');
+        isValid = false;
+      } else {
+        document.getElementById('fbEmail').classList.remove('invalid');
+      }
+
+      // check message
+      if (message.length < 10) {
+        document.getElementById('fbMessage').classList.add('invalid');
+        isValid = false;
+      } else {
+        document.getElementById('fbMessage').classList.remove('invalid');
+      }
+
+      // stop if the form is invalid
+      if (!isValid) return;
+
+      // save feedback
+      var feedback = loadFromStorage('tn_feedback');
+      feedback.unshift({
+        name:    name,
+        email:   email,
+        message: message,
+        date:    new Date().toLocaleString()
+      });
+      saveToStorage('tn_feedback', feedback);
+
+      // clear the form
+      document.getElementById('fbName').value    = '';
+      document.getElementById('fbEmail').value   = '';
+      document.getElementById('fbMessage').value = '';
+
+      /* Show success banner */
+      var banner = document.getElementById('successBanner');
+      banner.classList.add('show');
+
+      /* Hide banner after 5 seconds */
+      setTimeout(function () {
+        banner.classList.remove('show');
+      }, 5000);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "TravelNest",
+  "short_name": "TravelNest",
+  "description": "Your travel planning companion.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f4f8f6",
+  "theme_color": "#0b66ff"
+}

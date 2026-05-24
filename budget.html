@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Plan your trip budget with TravelNest. Calculate total cost and save your planned trips." />
+  <title>TravelNest - Budget Planner</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/budget.css" />
+</head>
+<body>
+
+  <div id="nav-slot"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>💰 Trip Budget Planner</h1>
+      <p>Calculate your estimated trip cost in seconds</p>
+    </div>
+  </div>
+
+  <section class="section section-tight">
+    <div class="container">
+      <div class="budget-layout">
+
+        <!-- Form panel -->
+        <div class="panel reveal">
+          <h3>Enter Your Trip Details</h3>
+
+          <!-- Destination select -->
+          <div class="form-group">
+            <label for="destSelect">Destination</label>
+            <select id="destSelect">
+              <option value="">-- Select a destination --</option>
+            </select>
+          </div>
+
+          <!-- Number of days -->
+          <div class="form-group">
+            <label for="numDays">Number of Days</label>
+            <input type="number" id="numDays" placeholder="e.g. 7" min="1" max="365" />
+          </div>
+
+          <!-- Daily budget -->
+          <div class="form-group">
+            <label for="dailyBudget">Daily Budget (USD $)</label>
+            <input type="number" id="dailyBudget" placeholder="e.g. 100" min="1" />
+          </div>
+
+          <!-- Error message for validation -->
+          <p id="formError" class="error-msg"></p>
+
+          <!-- Calculate button -->
+          <button class="btn btn-green btn-block" onclick="calculateBudget()">
+            Calculate Total Cost
+          </button>
+        </div>
+
+
+        <!-- Result panel -->
+        <div class="panel reveal">
+          <h3>Your Budget Summary</h3>
+
+          <!-- Placeholder shown before calculation -->
+          <div class="result-placeholder" id="resultPlaceholder">
+            <p>🧮 Fill in the form and click Calculate to see your trip cost.</p>
+          </div>
+
+          <!-- Result shown after calculation -->
+          <div id="resultContent" class="hidden">
+            <p id="resultDestLabel" class="result-label"></p>
+            <div class="total-amount" id="totalAmount"></div>
+            <div class="budget-badge" id="budgetBadge"></div>
+            <p class="result-detail" id="resultDetail"></p>
+
+            <!-- Progress bar -->
+            <p class="progress-info">Budget level:</p>
+            <div class="progress-wrap">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressLabel" class="progress-note"></p>
+
+            <!-- Save button -->
+            <div class="button-row">
+              <button class="btn btn-green btn-small"   onclick="saveTrip()">💾 Save Trip</button>
+              <button class="btn btn-outline btn-small"  onclick="resetForm()">Reset</button>
+            </div>
+            <p id="saveMsg" class="save-message"></p>
+          </div>
+
+          <!-- Saved trips list -->
+          <div class="saved-section hidden" id="savedSection">
+            <h4>📁 Saved Trips</h4>
+            <div id="savedList"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-slot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    initPage('budget');
+    var select = document.getElementById('destSelect');
+    destinations.forEach(function (dest) {
+      var option = document.createElement('option');
+      option.value = dest.name;
+      option.textContent = dest.name + ', ' + dest.country;
+      select.appendChild(option);
+    });
+    var lastResult = null;
+    function calculateBudget() {
+      var destName = document.getElementById('destSelect').value;
+      var days = parseInt(document.getElementById('numDays').value);
+      var daily = parseFloat(document.getElementById('dailyBudget').value);
+      var errorEl = document.getElementById('formError');
+      if (!destName || !days || !daily || days < 1 || daily < 1) {
+        errorEl.textContent = 'Please fill in all fields with valid numbers.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      errorEl.classList.add('hidden');
+      var total = Math.round(daily * days);
+      var status, badgeClass, progressPct;
+      if (daily < 50) {
+        status = 'Low Budget';
+        badgeClass = 'badge-low';
+        progressPct = 25;
+      } else if (daily < 150) {
+        status = 'Moderate';
+        badgeClass = 'badge-moderate';
+        progressPct = 60;
+      } else {
+        status = 'Luxury';
+        badgeClass = 'badge-luxury';
+        progressPct = 95;
+      }
+      document.getElementById('resultPlaceholder').classList.add('hidden');
+      document.getElementById('resultContent').classList.remove('hidden');
+      document.getElementById('resultDestLabel').textContent = destName.toUpperCase();
+      document.getElementById('totalAmount').textContent = '$' + total.toLocaleString();
+      var badge = document.getElementById('budgetBadge');
+      badge.textContent = status;
+      badge.className = 'budget-badge ' + badgeClass;
+      document.getElementById('resultDetail').textContent = days + ' days × $' + daily + '/day';
+      var bar = document.getElementById('progressBar');
+      bar.style.width = '0%';
+      setTimeout(function () { bar.style.width = progressPct + '%'; }, 100);
+      document.getElementById('progressLabel').textContent = progressPct + '% — ' + status;
+      lastResult = {
+        destination: destName,
+        days: days,
+        daily: daily,
+        total: total,
+        status: status,
+        date: new Date().toLocaleDateString()
+      };
+      document.getElementById('saveMsg').textContent = '';
+    }
+    function saveTrip() {
+      if (!lastResult) return;
+      var trips = loadFromStorage('tn_trips');
+      trips.unshift(lastResult);
+      if (trips.length > 10) trips.pop();
+      saveToStorage('tn_trips', trips);
+      document.getElementById('saveMsg').textContent = '✅ Trip saved!';
+      renderSaved();
+    }
+    function deleteTrip(index) {
+      var trips = loadFromStorage('tn_trips');
+      trips.splice(index, 1);
+      saveToStorage('tn_trips', trips);
+      renderSaved();
+    }
+    function renderSaved() {
+      var trips = loadFromStorage('tn_trips');
+      var section = document.getElementById('savedSection');
+      var list = document.getElementById('savedList');
+      if (trips.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      section.classList.remove('hidden');
+      list.innerHTML = '';
+      trips.forEach(function (trip, index) {
+        var item = document.createElement('div');
+        item.className = 'saved-item';
+        item.innerHTML = '<div><span class="saved-name">' + trip.destination + '</span>' +
+          '<span class="meta-text"> &bull; ' + trip.days + ' days &bull; ' + trip.date + '</span></div>' +
+          '<span class="saved-cost">$' + trip.total.toLocaleString() + '</span>' +
+          '<button class="delete-btn" onclick="deleteTrip(' + index + ')" aria-label="Delete trip">🗑</button>';
+        list.appendChild(item);
+      });
+    }
+    function resetForm() {
+      document.getElementById('destSelect').value = '';
+      document.getElementById('numDays').value = '';
+      document.getElementById('dailyBudget').value = '';
+      document.getElementById('resultPlaceholder').classList.remove('hidden');
+      document.getElementById('resultContent').classList.add('hidden');
+      lastResult = null;
+    }
+    renderSaved();
+  </script>
+
+</body>
+</html>

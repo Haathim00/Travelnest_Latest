@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Set your travel mood with ambient sounds and track destinations you have visited or planned." />
+  <title>TravelNest - Travel Mood</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/mood.css" />
+</head>
+<body>
+
+  <div id="nav-slot"></div>
+
+  <!-- Mood hero -->
+  <div class="mood-hero">
+    <div class="container">
+      <h1>🎧 Travel Mood</h1>
+      <p>Set the atmosphere and track your destinations</p>
+
+      <!-- Ambient sound buttons -->
+      <div class="sound-buttons">
+        <button class="sound-btn" data-sound="beach"    onclick="toggleSound(this)">🏖️ Beach Waves</button>
+        <button class="sound-btn" data-sound="forest"   onclick="toggleSound(this)">🌲 Forest</button>
+        <button class="sound-btn" data-sound="city"     onclick="toggleSound(this)">🌆 City</button>
+        <button class="sound-btn" data-sound="rain"     onclick="toggleSound(this)">🌧️ Rain</button>
+        <button class="sound-btn" data-sound="mountain" onclick="toggleSound(this)">🏔️ Mountain</button>
+      </div>
+
+      <p class="now-playing" id="nowPlaying"></p>
+    </div>
+  </div>
+
+
+  <!-- Tracking section -->
+  <section class="section section-tight">
+    <div class="container">
+
+      <!-- Stats -->
+      <div class="stats-row reveal">
+        <div class="stat-box">
+          <span class="stat-number" id="statVisited">0</span>
+          <p class="stat-label">Visited</p>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="statPlanned">0</span>
+          <p class="stat-label">Planned</p>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="statTotal">12</span>
+          <p class="stat-label">Total</p>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="statPct">0%</span>
+          <p class="stat-label">Explored</p>
+        </div>
+      </div>
+
+      <h2 class="section-heading section-heading-left reveal">
+        My Destinations
+      </h2>
+      <p class="section-description">
+        Mark destinations as visited or planned to track your travels.
+      </p>
+
+      <!-- Filter tabs -->
+      <div class="tab-row reveal">
+        <button class="tab-btn active" onclick="filterTrack('all', this)">All</button>
+        <button class="tab-btn"        onclick="filterTrack('visited', this)">✅ Visited</button>
+        <button class="tab-btn"        onclick="filterTrack('planned', this)">📋 Planned</button>
+        <button class="tab-btn"        onclick="filterTrack('none', this)">🔍 Unexplored</button>
+      </div>
+
+      <!-- Destination tracking list -->
+      <div id="trackList" class="reveal"></div>
+
+    </div>
+  </section>
+
+  <div id="footer-slot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    initPage('mood');
+    var audioFiles = {
+      beach: 'audio/beach.mp3',
+      forest: 'audio/forest.mp3',
+      city: 'audio/city.mp3',
+      rain: 'audio/rain.mp3',
+      mountain: 'audio/mountain.mp3'
+    };
+    var audioElements = {};
+    Object.keys(audioFiles).forEach(function (key) {
+      var audio = new Audio(audioFiles[key]);
+      audio.loop = true;
+      audio.volume = 0.55;
+      audio.preload = 'auto';
+      audioElements[key] = audio;
+    });
+    var activeAudio = null;
+    var activeButton = null;
+    function toggleSound(btn) {
+      var soundType = btn.dataset.sound;
+      var audio = audioElements[soundType];
+      if (!audio) return;
+      if (activeAudio && activeAudio.type === soundType) {
+        activeAudio.element.pause();
+        activeAudio.element.currentTime = 0;
+        btn.classList.remove('playing');
+        activeAudio = null;
+        activeButton = null;
+        document.getElementById('nowPlaying').textContent = '';
+        return;
+      }
+      if (activeAudio) {
+        activeAudio.element.pause();
+        activeAudio.element.currentTime = 0;
+        if (activeButton) activeButton.classList.remove('playing');
+      }
+      audio.currentTime = 0;
+      var playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(function () {
+          // playback may be blocked until a user gesture occurs
+        });
+      }
+      activeAudio = { type: soundType, element: audio };
+      btn.classList.add('playing');
+      activeButton = btn;
+      document.getElementById('nowPlaying').textContent = '♪ Now playing: ' + btn.textContent.trim();
+    }
+    var currentTabFilter = 'all';
+    function getStatus(id) {
+      var data = JSON.parse(localStorage.getItem('tn_track') || '{}');
+      return data[id] || 'none';
+    }
+    function setStatus(id, status) {
+      var data = JSON.parse(localStorage.getItem('tn_track') || '{}');
+      var current = data[id] || 'none';
+      data[id] = (current === status) ? 'none' : status;
+      localStorage.setItem('tn_track', JSON.stringify(data));
+      updateStats();
+      renderTrackList();
+    }
+    function updateStats() {
+      var data = JSON.parse(localStorage.getItem('tn_track') || '{}');
+      var visited = Object.values(data).filter(function (v) { return v === 'visited'; }).length;
+      var planned = Object.values(data).filter(function (v) { return v === 'planned'; }).length;
+      var pct = Math.round((visited / destinations.length) * 100);
+      document.getElementById('statVisited').textContent = visited;
+      document.getElementById('statPlanned').textContent = planned;
+      document.getElementById('statPct').textContent = pct + '%';
+    }
+    function filterTrack(filter, el) {
+      currentTabFilter = filter;
+      document.querySelectorAll('.tab-btn').forEach(function (t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      renderTrackList();
+    }
+    function renderTrackList() {
+      var list = document.getElementById('trackList');
+      var filtered = destinations.filter(function (d) {
+        return currentTabFilter === 'all' || getStatus(d.id) === currentTabFilter;
+      });
+      if (filtered.length === 0) {
+        list.innerHTML = '<p class="empty-message">No destinations in this category yet.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      filtered.forEach(function (dest) {
+        var status = getStatus(dest.id);
+        var item = document.createElement('div');
+        item.className = 'track-item';
+        var badgeText = status === 'visited' ? 'Visited' : status === 'planned' ? 'Planned' : 'Unexplored';
+        var badgeClass = 'status-badge status-' + status;
+        item.innerHTML = '<img class="track-icon" src="' + dest.image + '" alt="' + dest.name + '" />' +
+          '<div class="track-info"><h4>' + dest.name + '</h4><p>' + dest.country + '</p></div>' +
+          '<span class="' + badgeClass + '">' + badgeText + '</span>' +
+          '<div class="track-btns">' +
+          '<button class="track-toggle ' + (status === 'visited' ? 'visited-active' : '') + '" onclick="setStatus(' + dest.id + ', \'visited\')" aria-label="Mark ' + dest.name + ' as visited">✅ Visited</button>' +
+          '<button class="track-toggle ' + (status === 'planned' ? 'planned-active' : '') + '" onclick="setStatus(' + dest.id + ', \'planned\')" aria-label="Mark ' + dest.name + ' as planned">📋 Planned</button>' +
+          '</div>';
+        list.appendChild(item);
+      });
+    }
+    updateStats();
+    renderTrackList();
+  </script>
+
+</body>
+</html>

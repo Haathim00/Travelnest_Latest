@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Use TravelNest's random trip generator to discover your next destination. Filter by type and budget." />
+  <title>TravelNest - Trip Generator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/generator.css" />
+</head>
+<body>
+
+  <div id="nav-slot"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>🎲 Random Trip Generator</h1>
+      <p>Let us pick your next adventure</p>
+    </div>
+  </div>
+
+  <section class="section section-tight">
+    <div class="container">
+
+      <!-- Preference form -->
+      <div class="gen-form reveal">
+        <h3>Set Your Preferences</h3>
+
+        <div class="gen-selects">
+          <div class="form-group no-bottom">
+            <label for="travelType">Travel Type</label>
+            <select id="travelType">
+              <option value="">Any type</option>
+              <option value="adventure">Adventure</option>
+              <option value="relaxation">Relaxation</option>
+              <option value="cultural">Cultural</option>
+              <option value="nature">Nature</option>
+            </select>
+          </div>
+
+          <div class="form-group no-bottom">
+            <label for="budgetRange">Budget Range</label>
+            <select id="budgetRange">
+              <option value="">Any budget</option>
+              <option value="low">Low Budget</option>
+              <option value="medium">Mid-range</option>
+              <option value="high">Luxury</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Surprise Me button -->
+        <button class="btn btn-orange btn-block btn-large" id="surpriseBtn" onclick="generateTrip()">
+          ✦ Surprise Me!
+        </button>
+      </div>
+
+
+      <!-- Prompt shown before any generation -->
+      <div class="gen-prompt" id="genPrompt">
+        <p>🌍 Click "Surprise Me!" to get a destination recommendation.</p>
+      </div>
+
+      <!-- Result card (hidden until a trip is generated) -->
+      <div class="result-card hidden" id="resultCard">
+        <img id="resultImage" class="result-image" alt="" />
+        <div class="result-card-body">
+          <span id="resultTag" class="result-tag"></span>
+          <h2 id="resultName" class="result-title"></h2>
+          <p class="region" id="resultRegion"></p>
+          <p id="resultDesc"></p>
+          <div class="result-actions">
+            <button class="btn btn-green btn-small" onclick="addToWishlist()">❤ Add to Wishlist</button>
+            <a href="budget.html" class="btn btn-outline btn-small">Plan Budget</a>
+          </div>
+          <p id="wishMsg" class="feedback-message"></p>
+        </div>
+      </div>
+
+
+      <!-- Wishlist section -->
+      <div id="wishlistSection" class="reveal hidden">
+        <h2 class="section-heading section-heading-left">❤ Your Wishlist</h2>
+        <p class="section-description">Destinations you are dreaming about</p>
+        <div class="wishlist-grid" id="wishlistGrid"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <div id="footer-slot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    initPage('generator');
+    var currentDest = null;
+    function generateTrip() {
+      var type = document.getElementById('travelType').value;
+      var budget = document.getElementById('budgetRange').value;
+      var pool = destinations.filter(function (d) {
+        var typeMatch = (!type || d.type === type);
+        var budgetMatch = (!budget || d.budget === budget);
+        return typeMatch && budgetMatch;
+      });
+      if (pool.length === 0) pool = destinations;
+      var filtered = pool.filter(function (d) { return !currentDest || d.id !== currentDest.id; });
+      if (filtered.length === 0) filtered = pool;
+      var pick = filtered[Math.floor(Math.random() * filtered.length)];
+      currentDest = pick;
+      var btn = document.getElementById('surpriseBtn');
+      btn.classList.add('animate');
+      setTimeout(function () { btn.classList.remove('animate'); }, 500);
+      document.getElementById('genPrompt').classList.add('hidden');
+      document.getElementById('resultCard').classList.remove('hidden');
+      document.getElementById('resultImage').src = pick.image || 'images/placeholder.svg';
+      document.getElementById('resultImage').alt = pick.name;
+      document.getElementById('resultTag').textContent = pick.type + ' · ' + pick.budget + ' budget';
+      document.getElementById('resultName').textContent = pick.name;
+      document.getElementById('resultRegion').textContent = pick.country + ' · ' + pick.continent;
+      document.getElementById('resultDesc').textContent = pick.desc;
+      document.getElementById('wishMsg').textContent = '';
+    }
+    function addToWishlist() {
+      if (!currentDest) return;
+      var wishlist = loadFromStorage('tn_wishlist');
+      var exists = wishlist.some(function (w) { return w.id === currentDest.id; });
+      if (!exists) {
+        wishlist.push({
+          id: currentDest.id,
+          name: currentDest.name,
+          country: currentDest.country,
+          image: currentDest.image || 'images/placeholder.svg'
+        });
+        saveToStorage('tn_wishlist', wishlist);
+        document.getElementById('wishMsg').textContent = '✅ ' + currentDest.name + ' added to wishlist!';
+      } else {
+        document.getElementById('wishMsg').textContent = currentDest.name + ' is already in your wishlist.';
+      }
+      renderWishlist();
+    }
+    function removeFromWishlist(id) {
+      var wishlist = loadFromStorage('tn_wishlist').filter(function (w) { return w.id !== id; });
+      saveToStorage('tn_wishlist', wishlist);
+      renderWishlist();
+    }
+    function renderWishlist() {
+      var wishlist = loadFromStorage('tn_wishlist');
+      var section = document.getElementById('wishlistSection');
+      var grid = document.getElementById('wishlistGrid');
+      if (wishlist.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      section.classList.remove('hidden');
+      grid.innerHTML = '';
+      wishlist.forEach(function (item) {
+        var div = document.createElement('div');
+        div.className = 'wish-item';
+        div.innerHTML = '<img src="' + (item.image || 'images/placeholder.svg') + '" alt="' + item.name + '" class="wish-thumb" />' +
+          '<div><p class="wish-name">' + item.name + '</p><p class="wish-country">' + item.country + '</p></div>' +
+          '<button class="wish-remove" onclick="removeFromWishlist(' + item.id + ')" aria-label="Remove ' + item.name + '">×</button>';
+        grid.appendChild(div);
+      });
+    }
+    renderWishlist();
+  </script>
+
+</body>
+</html>

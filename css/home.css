@@ -1,0 +1,304 @@
+/* ── Hero wrapper ────────────────────────────────────────── */
+.hero {
+  padding-top: 65px;
+  background: linear-gradient(135deg, #e8f0fe 0%, #f4f8ff 100%);
+  min-height: calc(100vh - 65px);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 65px);
+}
+
+/* ── LEFT: Quote side ────────────────────────────────────── */
+.hero-quote-side {
+  position: relative;
+  z-index: 3;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 48px 60px 40px;
+  background: transparent;
+  align-items: center;
+}
+
+.hero-quote-inner {
+  max-width: 420px;
+  width: 100%;
+}
+
+.quote-mark {
+  font-size: 8rem;
+  line-height: 0.6;
+  color: var(--primary);
+  font-family: Georgia, serif;
+  margin-bottom: 24px;
+  opacity: 0.22;
+  user-select: none;
+}
+
+.quote-text {
+  font-size: 1.45rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--dark);
+  margin-bottom: 20px;
+  transition: opacity 0.38s ease;
+  font-weight: 400;
+}
+
+.quote-divider {
+  width: 48px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  margin-bottom: 16px;
+}
+
+.quote-author {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+  transition: opacity 0.38s ease;
+}
+
+.quote-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.quote-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--border);
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s, transform 0.2s;
+  padding: 0;
+}
+
+.quote-dot:hover { transform: scale(1.3); }
+
+.quote-dot.active {
+  background-color: var(--primary);
+  transform: scale(1.2);
+}
+
+/* ── RIGHT: Image side ───────────────────────────────────── */
+.hero-image-side {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: 100%;
+}
+
+.hero-img-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-img-layer--top { z-index: 1; }
+
+/* BLUE dissolve — fades left edge of photo into the blue-tinted hero bg */
+.hero-img-dissolve {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to right,
+    #e8f0fe 0%,
+    rgba(232, 240, 254, 0.95) 20%,
+    rgba(232, 240, 254, 0.60) 45%,
+    rgba(232, 240, 254, 0.15) 65%,
+    transparent 80%
+  );
+  pointer-events: none;
+}
+
+/* City pill label */
+.hero-img-label {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  z-index: 3;
+  background: rgba(4, 39, 77, 0.55);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border-radius: 50px;
+  transition: opacity 0.4s ease;
+}
+
+/* ── Destination of the Day ──────────────────────────────── */
+.accent-label {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.section-subtitle {
+  font-size: 1.5rem;
+  color: #1a2e25;
+  margin-bottom: 20px;
+}
+
+.section-white {
+  background: #ffffff;
+  padding-top: 50px;
+}
+
+.centered {
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* Sleek DotD card — compact horizontal layout */
+.dotd-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(11, 102, 255, 0.08);
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  max-width: 780px;        /* narrower = sleeker */
+  border: 1px solid rgba(11,102,255,0.07);
+}
+
+/* Square thumbnail on the left */
+.dotd-card .card-image {
+  width: 180px;
+  min-width: 180px;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.card-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Text block */
+.dotd-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.dotd-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dotd-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-top: 2px;
+}
+
+.dotd-desc {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.dotd-cta {
+  font-size: 0.8rem;
+  padding: 7px 18px;
+  align-self: flex-start;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero { min-height: auto; }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: auto;
+  }
+
+  /* Image panel sits on top on mobile */
+  .hero-image-side {
+    order: -1;
+    height: 56vw;
+    min-height: 210px;
+    max-height: 300px;
+  }
+
+  /* On mobile dissolve fades the bottom of the image into the bg below */
+  .hero-img-dissolve {
+    background: linear-gradient(
+      to bottom,
+      transparent 35%,
+      rgba(232, 240, 254, 0.65) 68%,
+      #e8f0fe 100%
+    );
+  }
+
+  .hero-quote-side {
+    padding: 32px 24px 44px;
+  }
+
+  .quote-text { font-size: 1.1rem; }
+
+  .quote-mark {
+    font-size: 4.5rem;
+    margin-bottom: 10px;
+  }
+
+  /* DotD card stacks vertically on mobile */
+  .dotd-card {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .dotd-card .card-image {
+    width: 100%;
+    min-width: unset;
+    height: 180px;
+  }
+
+  .dotd-body {
+    padding: 16px 18px;
+  }
+
+  .dotd-cta { align-self: stretch; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .quote-text { font-size: 0.98rem; }
+  .hero-image-side { height: 62vw; }
+
+  .dotd-card .card-image { height: 150px; }
+}

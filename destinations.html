@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore travel destinations worldwide. Filter by continent, search by name, and view full destination details." />
+  <title>TravelNest - Explore Destinations</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/destinations.css" />
+</head>
+<body>
+
+  <div id="nav-slot"></div>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>🗺️ Destination Explorer</h1>
+      <p>Search and filter destinations from around the world</p>
+    </div>
+  </div>
+
+
+  <!-- Main content -->
+  <section class="section section-tight">
+    <div class="container">
+
+      <!-- Search bar -->
+      <div class="search-bar reveal">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search by name or country..."
+          aria-label="Search destinations"
+          oninput="filterCards()"
+        />
+      </div>
+
+      <!-- Continent filter chips -->
+      <div class="filter-chips reveal" id="filterChips">
+        <button class="chip active" data-filter="all"          onclick="setFilter(this)">All</button>
+        <button class="chip"        data-filter="Asia"         onclick="setFilter(this)">Asia</button>
+        <button class="chip"        data-filter="Europe"       onclick="setFilter(this)">Europe</button>
+        <button class="chip"        data-filter="Africa"       onclick="setFilter(this)">Africa</button>
+        <button class="chip"        data-filter="South America" onclick="setFilter(this)">South America</button>
+        <button class="chip"        data-filter="Oceania"      onclick="setFilter(this)">Oceania</button>
+      </div>
+
+      <!-- Result count -->
+      <p class="result-count" id="resultCount"></p>
+
+      <!-- Destination cards grid -->
+      <div class="cards-grid" id="cardsGrid"></div>
+
+      <!-- Empty state (shown when no results) -->
+      <div class="empty-state hidden" id="emptyState">
+        <p>🔍 No destinations found. Try a different search or filter.</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- Modal window (opens when a card is clicked) -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
+
+      <img id="modalImage" class="modal-image" alt="" />
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <p class="modal-country" id="modalCountry"></p>
+      <p class="modal-desc"   id="modalDesc"></p>
+
+      <h4>Popular Attractions</h4>
+      <ul id="modalAttractions"></ul>
+
+      <h4>Travel Cost Comparison</h4>
+      <table class="cost-table" id="modalTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Budget</th>
+            <th>Mid-range</th>
+            <th>Luxury</th>
+          </tr>
+        </thead>
+        <tbody id="modalTableBody"></tbody>
+      </table>
+
+      <div class="modal-actions">
+        <a href="budget.html"    class="btn btn-green btn-small">Plan Budget</a>
+        <button class="btn btn-outline btn-small" onclick="addToWishlist()">❤ Add to Wishlist</button>
+        <span id="wishlistModalMsg" class="modal-message"></span>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div id="footer-slot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    buildNavbar('destinations');
+    buildFooter();
+    initHamburger();
+    initScrollReveal();
+
+    // current filter
+    var activeFilter = 'all';
+    var currentModalDest = null;
+    function renderCards(list) {
+      var grid = document.getElementById('cardsGrid');
+      var emptyState = document.getElementById('emptyState');
+      var countEl = document.getElementById('resultCount');
+      countEl.textContent = 'Showing ' + list.length + ' destination' + (list.length !== 1 ? 's' : '');
+      if (list.length === 0) {
+        grid.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+      grid.innerHTML = '';
+      list.forEach(function (dest) {
+        var card = document.createElement('div');
+        card.className = 'card reveal';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', 'View details for ' + dest.name);
+        card.innerHTML = '<img src="' + (dest.image || 'images/placeholder.svg') + '" alt="' + dest.name + '" class="card-image" />' +
+          '<div class="card-body">' +
+          '<p class="card-title">' + dest.name + '</p>' +
+          '<p class="card-country">' + dest.country + ' &bull; ' + dest.continent + '</p>' +
+          '<p class="card-desc">' + dest.desc.substring(0, 85) + '...</p>' +
+          '</div>';
+        card.addEventListener('click', function () { openModal(dest.id); });
+        card.addEventListener('keydown', function (e) { if (e.key === 'Enter') openModal(dest.id); });
+        grid.appendChild(card);
+      });
+      initScrollReveal();
+    }
+
+     // filter cards
+    function filterCards() {
+      var searchText = document.getElementById('searchInput').value.toLowerCase();
+      var filtered = destinations.filter(function (dest) {
+        var continentMatch = (activeFilter === 'all' || dest.continent === activeFilter);
+        var searchMatch = (dest.name.toLowerCase().includes(searchText) || dest.country.toLowerCase().includes(searchText));
+        return continentMatch && searchMatch;
+      });
+      renderCards(filtered);
+    }
+    function setFilter(el) {
+      document.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
+      el.classList.add('active');
+      activeFilter = el.dataset.filter;
+      filterCards();
+    }
+    function openModal(id) {
+      var dest = destinations.find(function (d) { return d.id === id; });
+      if (!dest) return;
+      currentModalDest = dest;
+      document.getElementById('modalImage').src = dest.image || 'images/placeholder.svg';
+      document.getElementById('modalImage').alt = dest.name;
+      document.getElementById('modalTitle').textContent = dest.name;
+      document.getElementById('modalCountry').textContent = dest.country + ' · ' + dest.continent;
+      document.getElementById('modalDesc').textContent = dest.desc;
+      document.getElementById('wishlistModalMsg').textContent = '';
+      var ul = document.getElementById('modalAttractions');
+      ul.innerHTML = '';
+      dest.attractions.forEach(function (att) {
+        var li = document.createElement('li');
+        li.textContent = att;
+        ul.appendChild(li);
+      });
+      var tbody = document.getElementById('modalTableBody');
+      tbody.innerHTML = '';
+      dest.costs.forEach(function (row) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.item + '</td><td>' + row.low + '</td><td>' + row.mid + '</td><td>' + row.high + '</td>';
+        tbody.appendChild(tr);
+      });
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function addToWishlist() {
+      if (!currentModalDest) return;
+      var wishlist = loadFromStorage('tn_wishlist');
+      var exists = wishlist.some(function (w) { return w.id === currentModalDest.id; });
+      if (!exists) {
+        wishlist.push({
+          id: currentModalDest.id,
+          name: currentModalDest.name,
+          country: currentModalDest.country,
+          image: currentModalDest.image || 'images/placeholder.svg'
+        });
+        saveToStorage('tn_wishlist', wishlist);
+        document.getElementById('wishlistModalMsg').textContent = 'Saved to wishlist!';
+      } else {
+        document.getElementById('wishlistModalMsg').textContent = currentModalDest.name + ' is already in wishlist.';
+      }
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+    document.getElementById('modalOverlay').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+    renderCards(destinations);
+  </script>
+
+</body>
+</html>
