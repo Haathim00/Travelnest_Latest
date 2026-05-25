@@ -15,6 +15,7 @@
   <div id="nav-slot"></div>
   <!-- Hero section -->
   <section class="hero">
+    <h1 class="sr-only">TravelNest - Explore Amazing Destinations</h1>
     <div class="hero-grid">
 
       <!-- Left: Auto-rotating quote (no background image) -->
@@ -48,7 +49,7 @@
     <div class="container">
       <div class="reveal">
         <p class="accent-label">Updated Daily</p>
-        <h2 class="section-subtitle">Destination of the Day</h2>
+        <h1 class="section-subtitle">Destination of the Day</h1>
         <!-- Card filled by JS -->
         <div class="dotd-card" id="dotdCard"></div>
       </div>
@@ -60,7 +61,7 @@
   <section class="section section-white">
     <div class="container">
       <div class="reveal">
-        <h2 class="section-heading">Featured Destinations</h2>
+        <h1 class="section-heading">Featured Destinations</h1>
       </div>
       <!-- Grid filled by JS -->
       <div class="cards-grid" id="featuredGrid"></div>
@@ -73,9 +74,10 @@
 
   <div id="footer-slot"></div>
 
-  <script src="js/data.js"></script>
+  <script defer src="js/data.js"></script>
   <script>
-    initPage('home');
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('home');
     var currentQuote = 0;
 
     var dotsContainer = document.getElementById('quoteDots');
@@ -145,7 +147,7 @@
     var dotd      = destinations[dayOfYear % destinations.length];
 
     document.getElementById('dotdCard').innerHTML = `
-      <img src="${dotd.image || 'images/placeholder.svg'}" alt="${dotd.name}" class="card-image" />
+      <img src="${dotd.image || 'images/placeholder.svg'}" alt="${dotd.name}" loading="lazy" class="card-image" />
       <div class="dotd-body">
         <p class="dotd-label">✈ Destination of the Day</p>
         <p class="dotd-name">${dotd.name}, ${dotd.country}</p>
@@ -162,7 +164,7 @@
       var card = document.createElement('div');
       card.className = 'card reveal';
       card.innerHTML = `
-        <img src="${dest.image || 'images/placeholder.svg'}" alt="${dest.name}" class="card-image" />
+        <img src="${dest.image || 'images/placeholder.svg'}" alt="${dest.name}" loading="lazy" class="card-image" />
         <div class="card-body">
           <p class="card-title">${dest.name}</p>
           <p class="card-country">${dest.country} &bull; ${dest.continent}</p>
@@ -179,6 +181,7 @@
 
     // reveal new cards
     initScrollReveal();
+  });
   </script>
 
 </body>

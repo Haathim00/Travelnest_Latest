@@ -72,7 +72,7 @@
 
       <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
 
-      <img id="modalImage" class="modal-image" alt="" />
+      <img id="modalImage" class="modal-image" alt="Selected destination image" loading="lazy" />
       <h2 class="modal-title" id="modalTitle"></h2>
       <p class="modal-country" id="modalCountry"></p>
       <p class="modal-desc"   id="modalDesc"></p>
@@ -105,9 +105,10 @@
 
   <div id="footer-slot"></div>
 
-  <script src="js/data.js"></script>
+  <script defer src="js/data.js"></script>
   <script>
-    buildNavbar('destinations');
+    window.addEventListener('DOMContentLoaded', function () {
+      buildNavbar('destinations');
     buildFooter();
     initHamburger();
     initScrollReveal();
@@ -133,7 +134,7 @@
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
         card.setAttribute('aria-label', 'View details for ' + dest.name);
-        card.innerHTML = '<img src="' + (dest.image || 'images/placeholder.svg') + '" alt="' + dest.name + '" class="card-image" />' +
+        card.innerHTML = '<img src="' + (dest.image || 'images/placeholder.svg') + '" alt="' + dest.name + '" loading="lazy" class="card-image" />' +
           '<div class="card-body">' +
           '<p class="card-title">' + dest.name + '</p>' +
           '<p class="card-country">' + dest.country + ' &bull; ' + dest.continent + '</p>' +
@@ -215,6 +216,7 @@
       if (e.key === 'Escape') closeModal();
     });
     renderCards(destinations);
+  });
   </script>
 
 </body>

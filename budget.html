@@ -103,9 +103,10 @@
 
   <div id="footer-slot"></div>
 
-  <script src="js/data.js"></script>
+  <script defer src="js/data.js"></script>
   <script>
-    initPage('budget');
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('budget');
     var select = document.getElementById('destSelect');
     destinations.forEach(function (dest) {
       var option = document.createElement('option');
@@ -206,6 +207,7 @@
       lastResult = null;
     }
     renderSaved();
+  });
   </script>
 
 </body>

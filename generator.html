@@ -65,7 +65,7 @@
 
       <!-- Result card (hidden until a trip is generated) -->
       <div class="result-card hidden" id="resultCard">
-        <img id="resultImage" class="result-image" alt="" />
+        <img id="resultImage" class="result-image" alt="Selected destination image" loading="lazy" />
         <div class="result-card-body">
           <span id="resultTag" class="result-tag"></span>
           <h2 id="resultName" class="result-title"></h2>
@@ -92,9 +92,10 @@
 
   <div id="footer-slot"></div>
 
-  <script src="js/data.js"></script>
+  <script defer src="js/data.js"></script>
   <script>
-    initPage('generator');
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('generator');
     var currentDest = null;
     function generateTrip() {
       var type = document.getElementById('travelType').value;
@@ -158,13 +159,14 @@
       wishlist.forEach(function (item) {
         var div = document.createElement('div');
         div.className = 'wish-item';
-        div.innerHTML = '<img src="' + (item.image || 'images/placeholder.svg') + '" alt="' + item.name + '" class="wish-thumb" />' +
+        div.innerHTML = '<img src="' + (item.image || 'images/placeholder.svg') + '" alt="' + item.name + '" loading="lazy" class="wish-thumb" />' +
           '<div><p class="wish-name">' + item.name + '</p><p class="wish-country">' + item.country + '</p></div>' +
           '<button class="wish-remove" onclick="removeFromWishlist(' + item.id + ')" aria-label="Remove ' + item.name + '">×</button>';
         grid.appendChild(div);
       });
     }
     renderWishlist();
+  });
   </script>
 
 </body>

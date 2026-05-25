@@ -81,9 +81,10 @@
 
   <div id="footer-slot"></div>
 
-  <script src="js/data.js"></script>
+  <script defer src="js/data.js"></script>
   <script>
-    initPage('mood');
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('mood');
     var audioFiles = {
       beach: 'audio/beach.mp3',
       forest: 'audio/forest.mp3',
@@ -175,7 +176,7 @@
         item.className = 'track-item';
         var badgeText = status === 'visited' ? 'Visited' : status === 'planned' ? 'Planned' : 'Unexplored';
         var badgeClass = 'status-badge status-' + status;
-        item.innerHTML = '<img class="track-icon" src="' + dest.image + '" alt="' + dest.name + '" />' +
+        item.innerHTML = '<img class="track-icon" src="' + dest.image + '" alt="' + dest.name + '" loading="lazy" />' +
           '<div class="track-info"><h4>' + dest.name + '</h4><p>' + dest.country + '</p></div>' +
           '<span class="' + badgeClass + '">' + badgeText + '</span>' +
           '<div class="track-btns">' +
@@ -187,6 +188,7 @@
     }
     updateStats();
     renderTrackList();
+  });
   </script>
 
 </body>
