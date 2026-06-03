@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Plan your trip budget with TravelNest. Calculate total cost and save your planned trips." />
   <title>TravelNest - Budget Planner</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="icon" href="images/icon.jpg" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/budget.css" />
@@ -105,17 +105,19 @@
 
   <script defer src="js/data.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      initPage('budget');
-    var select = document.getElementById('destSelect');
-    destinations.forEach(function (dest) {
-      var option = document.createElement('option');
-      option.value = dest.name;
-      option.textContent = dest.name + ', ' + dest.country;
-      select.appendChild(option);
-    });
     var lastResult = null;
-    function calculateBudget() {
+
+    function populateBudgetDestinations() {
+      var select = document.getElementById('destSelect');
+      destinations.forEach(function (dest) {
+        var option = document.createElement('option');
+        option.value = dest.name;
+        option.textContent = dest.name + ', ' + dest.country;
+        select.appendChild(option);
+      });
+    }
+
+    window.calculateBudget = function () {
       var destName = document.getElementById('destSelect').value;
       var days = parseInt(document.getElementById('numDays').value);
       var daily = parseFloat(document.getElementById('dailyBudget').value);
@@ -162,8 +164,9 @@
         date: new Date().toLocaleDateString()
       };
       document.getElementById('saveMsg').textContent = '';
-    }
-    function saveTrip() {
+    };
+
+    window.saveTrip = function () {
       if (!lastResult) return;
       var trips = loadFromStorage('tn_trips');
       trips.unshift(lastResult);
@@ -171,13 +174,15 @@
       saveToStorage('tn_trips', trips);
       document.getElementById('saveMsg').textContent = '✅ Trip saved!';
       renderSaved();
-    }
-    function deleteTrip(index) {
+    };
+
+    window.deleteTrip = function (index) {
       var trips = loadFromStorage('tn_trips');
       trips.splice(index, 1);
       saveToStorage('tn_trips', trips);
       renderSaved();
-    }
+    };
+
     function renderSaved() {
       var trips = loadFromStorage('tn_trips');
       var section = document.getElementById('savedSection');
@@ -198,16 +203,21 @@
         list.appendChild(item);
       });
     }
-    function resetForm() {
+
+    window.resetForm = function () {
       document.getElementById('destSelect').value = '';
       document.getElementById('numDays').value = '';
       document.getElementById('dailyBudget').value = '';
       document.getElementById('resultPlaceholder').classList.remove('hidden');
       document.getElementById('resultContent').classList.add('hidden');
       lastResult = null;
-    }
-    renderSaved();
-  });
+    };
+
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('budget');
+      populateBudgetDestinations();
+      renderSaved();
+    });
   </script>
 
 </body>

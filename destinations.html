@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Explore travel destinations worldwide. Filter by continent, search by name, and view full destination details." />
   <title>TravelNest - Explore Destinations</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="icon" href="images/icon.jpg" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/destinations.css" />
@@ -107,15 +107,9 @@
 
   <script defer src="js/data.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      buildNavbar('destinations');
-    buildFooter();
-    initHamburger();
-    initScrollReveal();
-
-    // current filter
     var activeFilter = 'all';
     var currentModalDest = null;
+
     function renderCards(list) {
       var grid = document.getElementById('cardsGrid');
       var emptyState = document.getElementById('emptyState');
@@ -147,8 +141,7 @@
       initScrollReveal();
     }
 
-     // filter cards
-    function filterCards() {
+    window.filterCards = function () {
       var searchText = document.getElementById('searchInput').value.toLowerCase();
       var filtered = destinations.filter(function (dest) {
         var continentMatch = (activeFilter === 'all' || dest.continent === activeFilter);
@@ -156,14 +149,16 @@
         return continentMatch && searchMatch;
       });
       renderCards(filtered);
-    }
-    function setFilter(el) {
+    };
+
+    window.setFilter = function (el) {
       document.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
       el.classList.add('active');
       activeFilter = el.dataset.filter;
       filterCards();
-    }
-    function openModal(id) {
+    };
+
+    window.openModal = function (id) {
       var dest = destinations.find(function (d) { return d.id === id; });
       if (!dest) return;
       currentModalDest = dest;
@@ -188,8 +183,9 @@
         tbody.appendChild(tr);
       });
       document.getElementById('modalOverlay').classList.add('active');
-    }
-    function addToWishlist() {
+    };
+
+    window.addToWishlist = function () {
       if (!currentModalDest) return;
       var wishlist = loadFromStorage('tn_wishlist');
       var exists = wishlist.some(function (w) { return w.id === currentModalDest.id; });
@@ -205,18 +201,26 @@
       } else {
         document.getElementById('wishlistModalMsg').textContent = currentModalDest.name + ' is already in wishlist.';
       }
-    }
-    function closeModal() {
+    };
+
+    window.closeModal = function () {
       document.getElementById('modalOverlay').classList.remove('active');
-    }
+    };
+
     document.getElementById('modalOverlay').addEventListener('click', function (e) {
       if (e.target === this) closeModal();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeModal();
     });
-    renderCards(destinations);
-  });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      buildNavbar('destinations');
+      buildFooter();
+      initHamburger();
+      initScrollReveal();
+      renderCards(destinations);
+    });
   </script>
 
 </body>

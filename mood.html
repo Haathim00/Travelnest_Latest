@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Set your travel mood with ambient sounds and track destinations you have visited or planned." />
   <title>TravelNest - Travel Mood</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="icon" href="images/icon.jpg" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/mood.css" />
@@ -83,8 +83,6 @@
 
   <script defer src="js/data.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      initPage('mood');
     var audioFiles = {
       beach: 'audio/beach.mp3',
       forest: 'audio/forest.mp3',
@@ -102,7 +100,9 @@
     });
     var activeAudio = null;
     var activeButton = null;
-    function toggleSound(btn) {
+    var currentTabFilter = 'all';
+
+    window.toggleSound = function (btn) {
       var soundType = btn.dataset.sound;
       var audio = audioElements[soundType];
       if (!audio) return;
@@ -131,20 +131,22 @@
       btn.classList.add('playing');
       activeButton = btn;
       document.getElementById('nowPlaying').textContent = '♪ Now playing: ' + btn.textContent.trim();
-    }
-    var currentTabFilter = 'all';
-    function getStatus(id) {
+    };
+
+    window.getStatus = function (id) {
       var data = JSON.parse(localStorage.getItem('tn_track') || '{}');
       return data[id] || 'none';
-    }
-    function setStatus(id, status) {
+    };
+
+    window.setStatus = function (id, status) {
       var data = JSON.parse(localStorage.getItem('tn_track') || '{}');
       var current = data[id] || 'none';
       data[id] = (current === status) ? 'none' : status;
       localStorage.setItem('tn_track', JSON.stringify(data));
       updateStats();
       renderTrackList();
-    }
+    };
+
     function updateStats() {
       var data = JSON.parse(localStorage.getItem('tn_track') || '{}');
       var visited = Object.values(data).filter(function (v) { return v === 'visited'; }).length;
@@ -154,12 +156,14 @@
       document.getElementById('statPlanned').textContent = planned;
       document.getElementById('statPct').textContent = pct + '%';
     }
-    function filterTrack(filter, el) {
+
+    window.filterTrack = function (filter, el) {
       currentTabFilter = filter;
       document.querySelectorAll('.tab-btn').forEach(function (t) { t.classList.remove('active'); });
       el.classList.add('active');
       renderTrackList();
-    }
+    };
+
     function renderTrackList() {
       var list = document.getElementById('trackList');
       var filtered = destinations.filter(function (d) {
@@ -186,9 +190,12 @@
         list.appendChild(item);
       });
     }
-    updateStats();
-    renderTrackList();
-  });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('mood');
+      updateStats();
+      renderTrackList();
+    });
   </script>
 
 </body>

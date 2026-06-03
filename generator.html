@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Use TravelNest's random trip generator to discover your next destination. Filter by type and budget." />
   <title>TravelNest - Trip Generator</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="icon" href="images/icon.jpg" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/generator.css" />
@@ -94,10 +94,9 @@
 
   <script defer src="js/data.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      initPage('generator');
     var currentDest = null;
-    function generateTrip() {
+
+    window.generateTrip = function () {
       var type = document.getElementById('travelType').value;
       var budget = document.getElementById('budgetRange').value;
       var pool = destinations.filter(function (d) {
@@ -122,8 +121,9 @@
       document.getElementById('resultRegion').textContent = pick.country + ' · ' + pick.continent;
       document.getElementById('resultDesc').textContent = pick.desc;
       document.getElementById('wishMsg').textContent = '';
-    }
-    function addToWishlist() {
+    };
+
+    window.addToWishlist = function () {
       if (!currentDest) return;
       var wishlist = loadFromStorage('tn_wishlist');
       var exists = wishlist.some(function (w) { return w.id === currentDest.id; });
@@ -140,12 +140,14 @@
         document.getElementById('wishMsg').textContent = currentDest.name + ' is already in your wishlist.';
       }
       renderWishlist();
-    }
-    function removeFromWishlist(id) {
+    };
+
+    window.removeFromWishlist = function (id) {
       var wishlist = loadFromStorage('tn_wishlist').filter(function (w) { return w.id !== id; });
       saveToStorage('tn_wishlist', wishlist);
       renderWishlist();
-    }
+    };
+
     function renderWishlist() {
       var wishlist = loadFromStorage('tn_wishlist');
       var section = document.getElementById('wishlistSection');
@@ -165,8 +167,11 @@
         grid.appendChild(div);
       });
     }
-    renderWishlist();
-  });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('generator');
+      renderWishlist();
+    });
   </script>
 
 </body>

@@ -236,7 +236,7 @@ function buildNavbar(activePage) {
   }).join('');
   
   var html = '<nav class="navbar" id="navbar"><div class="nav-inner">' +
-    '<a href="index.html" class="nav-logo">Travel<span>Nest</span></a>' +
+    '<a href="index.html" class="nav-logo"><img src="images/icon.jpg" alt="TravelNest" class="nav-icon"> Travel<span>Nest</span></a>' +
     '<ul class="nav-links" id="navLinks">' + links + '</ul>' +
     '<button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>' +
     '</div></nav>';

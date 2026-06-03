@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Contact TravelNest support, send feedback, and browse frequently asked questions." />
   <title>TravelNest - Feedback & Support</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>" />
+  <link rel="icon" href="images/icon.jpg" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/feedback.css" />
@@ -83,8 +83,6 @@
 
   <script defer src="js/data.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      initPage('feedback');
     var faqData = [
       {
         q: "Is TravelNest free to use?",
@@ -116,53 +114,46 @@
       }
     ];
 
+    function buildFaq() {
+      var container = document.getElementById('faqContainer');
+      faqData.forEach(function (item, index) {
+        var div = document.createElement('div');
+        div.className = 'faq-item';
+        div.id = 'faq-' + index;
 
-    // add FAQ items
-    var container = document.getElementById('faqContainer');
+        div.innerHTML = `
+          <div class="faq-question" onclick="toggleFaq(${index})">
+            <span>${item.q}</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>${item.a}</p>
+          </div>`;
 
-    faqData.forEach(function (item, index) {
-      var div = document.createElement('div');
-      div.className = 'faq-item';
-      div.id = 'faq-' + index;
+        container.appendChild(div);
+      });
+    }
 
-      div.innerHTML = `
-        <div class="faq-question" onclick="toggleFaq(${index})">
-          <span>${item.q}</span>
-          <span class="faq-icon">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>${item.a}</p>
-        </div>`;
-
-      container.appendChild(div);
-    });
-
-    // toggle FAQ item
-    function toggleFaq(index) {
+    window.toggleFaq = function (index) {
       var item   = document.getElementById('faq-' + index);
       var isOpen = item.classList.contains('open');
 
-      // close all items
       document.querySelectorAll('.faq-item').forEach(function (el) {
         el.classList.remove('open');
       });
 
-      // open selected item
       if (!isOpen) {
         item.classList.add('open');
       }
-    }
+    };
 
-
-    // feedback form validation
-    function submitFeedback() {
+    window.submitFeedback = function () {
       var name    = document.getElementById('fbName').value.trim();
       var email   = document.getElementById('fbEmail').value.trim();
       var message = document.getElementById('fbMessage').value.trim();
 
       var isValid = true;
 
-      // check name
       if (name.length < 2) {
         document.getElementById('fbName').classList.add('invalid');
         isValid = false;
@@ -170,7 +161,6 @@
         document.getElementById('fbName').classList.remove('invalid');
       }
 
-      // check email
       var emailOk = email.includes('@') && email.includes('.');
       if (!emailOk) {
         document.getElementById('fbEmail').classList.add('invalid');
@@ -179,7 +169,6 @@
         document.getElementById('fbEmail').classList.remove('invalid');
       }
 
-      // check message
       if (message.length < 10) {
         document.getElementById('fbMessage').classList.add('invalid');
         isValid = false;
@@ -187,10 +176,8 @@
         document.getElementById('fbMessage').classList.remove('invalid');
       }
 
-      // stop if the form is invalid
       if (!isValid) return;
 
-      // save feedback
       var feedback = loadFromStorage('tn_feedback');
       feedback.unshift({
         name:    name,
@@ -200,21 +187,21 @@
       });
       saveToStorage('tn_feedback', feedback);
 
-      // clear the form
       document.getElementById('fbName').value    = '';
       document.getElementById('fbEmail').value   = '';
       document.getElementById('fbMessage').value = '';
 
-      /* Show success banner */
       var banner = document.getElementById('successBanner');
       banner.classList.add('show');
-
-      /* Hide banner after 5 seconds */
       setTimeout(function () {
         banner.classList.remove('show');
       }, 5000);
-    }
-  });
+    };
+
+    window.addEventListener('DOMContentLoaded', function () {
+      initPage('feedback');
+      buildFaq();
+    });
   </script>
 
 </body>

@@ -155,6 +155,14 @@ ul {
   color: var(--accent);
 }
 
+.nav-icon {
+  margin-right: 8px;
+  display: inline-block;
+  height: 28px;
+  width: 28px;
+  vertical-align: middle;
+}
+
 .nav-links {
   display: flex;
   gap: 28px;
