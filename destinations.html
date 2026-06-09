@@ -20,6 +20,7 @@
     <div class="container">
       <h1>🗺️ Destination Explorer</h1>
       <p>Search and filter destinations from around the world</p>
+      <h2 class="sr-only">Destination search and filter controls</h2>
     </div>
   </div>
 
@@ -73,8 +74,9 @@
 
       <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
 
-      <img id="modalImage" class="modal-image" alt="Selected destination image" loading="lazy" />
-      <h2 class="modal-title" id="modalTitle"></h2>
+      <img id="modalImage" class="modal-image" src="images/placeholder.svg" alt="Selected destination image" loading="lazy" />
+      <h2 class="modal-title" id="modalTitle">Destination</h2>
+      <h3 class="sr-only">Destination details</h3>
       <p class="modal-country" id="modalCountry"></p>
       <p class="modal-desc"   id="modalDesc"></p>
 
