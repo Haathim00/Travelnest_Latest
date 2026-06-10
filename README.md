@@ -28,7 +28,7 @@ Progressive Web App (PWA)
 ## 📂 Project Structure
 
 ```text
-Travelnest_Latest/
+TravelNest_Website/
 │
 ├── .github/
 │   └── workflows/
